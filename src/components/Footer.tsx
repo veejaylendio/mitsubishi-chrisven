@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 // TikTok intentionally omitted until Chrisven has an account (per requirements.md).
 const SOCIALS = [
   {
@@ -16,9 +18,18 @@ export default function Footer() {
   return (
     <footer className="bg-brand-black px-6 py-10 text-brand-white">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <p className="text-sm text-white/70">
-          &copy; {new Date().getFullYear()} Chrisven Jay Romagos — Mitsubishi Motors Sales
-        </p>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/mitsubishi-mark-white.png"
+            alt="Mitsubishi Motors"
+            width={28}
+            height={24}
+            className="h-6 w-auto"
+          />
+          <p className="text-sm text-white/70">
+            &copy; {new Date().getFullYear()} Chrisven Jay Romagos — Mitsubishi Motors Sales
+          </p>
+        </div>
         <div className="flex gap-4">
           {SOCIALS.map((social) => (
             <a

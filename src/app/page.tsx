@@ -1,7 +1,8 @@
+import ReactDOM from "react-dom";
 import { createClient } from "@/lib/supabase/server";
 import NavBar from "@/components/NavBar";
 import HeroCarousel from "@/components/HeroCarousel";
-import VehicleCard from "@/components/VehicleCard";
+import VehicleCarousel from "@/components/VehicleCarousel";
 import ReviewsSection from "@/components/ReviewsSection";
 import ClientsGallery from "@/components/ClientsGallery";
 import Footer from "@/components/Footer";
@@ -21,10 +22,10 @@ export default async function Home() {
         .from("vehicles")
         .select("id, name, trim, price, description")
         .eq("is_available", true)
-        .order("created_at"),
+        .order("sort_order"),
       supabase
         .from("vehicle_images")
-        .select("vehicle_id, color_variant, image_url, sort_order")
+        .select("vehicle_id, color_variant, image_url, hex_color, sort_order")
         .order("sort_order"),
       supabase
         .from("reviews")
@@ -42,19 +43,33 @@ export default async function Home() {
     images: (vehicleImages ?? []).filter((img) => img.vehicle_id === vehicle.id),
   }));
 
+  const vehicleGroups = Object.values(
+    vehiclesWithImages.reduce<Record<string, { name: string; trims: typeof vehiclesWithImages }>>(
+      (groups, vehicle) => {
+        groups[vehicle.name] ??= { name: vehicle.name, trims: [] };
+        groups[vehicle.name].trims.push(vehicle);
+        return groups;
+      },
+      {},
+    ),
+  );
+
+  const firstHeroImage = heroSlides?.[0]?.image_url;
+  if (firstHeroImage) {
+    ReactDOM.preload(firstHeroImage, { as: "image", fetchPriority: "high" });
+  }
+
   return (
     <div className="flex flex-1 flex-col">
       <NavBar />
       <HeroCarousel slides={heroSlides ?? []} />
 
-      <section id="inventory" className="px-6 py-16">
+      <section id="inventory" className="py-16">
         <h2 className="text-center text-2xl font-bold text-brand-black">
           Available Vehicles
         </h2>
-        <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {vehiclesWithImages.map((vehicle) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} />
-          ))}
+        <div className="mt-10">
+          <VehicleCarousel groups={vehicleGroups} />
         </div>
       </section>
 

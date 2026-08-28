@@ -1,3 +1,5 @@
+import LazyImage from "./LazyImage";
+
 export type ClientPhoto = {
   id: string;
   image_url: string;
@@ -15,11 +17,10 @@ export default function ClientsGallery({ photos }: { photos: ClientPhoto[] }) {
       <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-4 sm:grid-cols-3">
         {photos.map((photo) => (
           <figure key={photo.id} className="overflow-hidden rounded-lg">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <LazyImage
               src={photo.image_url}
               alt={photo.caption ?? "Released client vehicle"}
-              className="h-48 w-full object-cover"
+              wrapperClassName="h-48 w-full"
             />
             {photo.caption && (
               <figcaption className="mt-1 text-center text-xs text-gray-500">
