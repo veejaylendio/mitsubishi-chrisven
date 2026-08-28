@@ -1,7 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import VehicleCard, { type VehicleGroup } from "./VehicleCard";
+import VehicleCard from "./VehicleCard";
+import type { VehicleGroup } from "@/lib/types";
 
 export default function VehicleCarousel({ groups }: { groups: VehicleGroup[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);

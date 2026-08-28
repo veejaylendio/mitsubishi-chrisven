@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/inquiries", label: "Inquiries" },
   { href: "/dashboard/inventory", label: "Inventory" },
-  { href: "/dashboard/landing-content", label: "Landing Content" },
+  { href: "/dashboard/landing-content", label: "Page Configuration" },
   { href: "/dashboard/applications", label: "Applications" },
 ];
 

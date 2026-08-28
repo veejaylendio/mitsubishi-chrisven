@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import LazyImage from "./LazyImage";
+import type { HeroSlide } from "@/lib/types";
+import CtaButtonLink from "./CtaButtonLink";
 
-export type HeroSlide = {
-  id: string;
-  title: string | null;
-  body: string | null;
-  image_url: string | null;
-};
+const ALIGN_CLASS = {
+  left: "items-start text-left",
+  center: "items-center text-center",
+  right: "items-end text-right",
+} as const;
 
 export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
@@ -25,35 +26,68 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   const slide = slides[index];
   const goTo = (i: number) => setIndex((i + slides.length) % slides.length);
+  const alignClass = ALIGN_CLASS[slide.text_align] ?? ALIGN_CLASS.center;
 
   return (
     <section className="relative h-[calc(100vh-5rem)] min-h-[520px] w-full overflow-hidden bg-brand-black">
-      {slide.image_url && (
-        <LazyImage
+      {slide.media_type === "video" && slide.video_url ? (
+        <video
           key={slide.id}
-          src={slide.image_url}
-          alt={slide.title ?? ""}
-          wrapperClassName="absolute inset-0 h-full w-full"
-          lcp
+          src={slide.video_url}
+          poster={slide.image_url ?? undefined}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
         />
+      ) : (
+        slide.image_url && (
+          <LazyImage
+            key={slide.id}
+            src={slide.image_url}
+            alt={slide.title ?? ""}
+            wrapperClassName="absolute inset-0 h-full w-full"
+            lcp
+          />
+        )
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+        style={{ opacity: slide.overlay_opacity }}
+      />
 
-      <div className="relative z-10 flex h-full flex-col justify-end px-8 pb-20 text-brand-white sm:px-16 sm:pb-24">
+      <div
+        className={`relative z-10 flex h-full flex-col justify-end px-8 pb-20 text-brand-white sm:px-16 sm:pb-24 ${alignClass}`}
+      >
         {slide.title && (
           <h1 className="max-w-2xl text-4xl font-extrabold leading-tight sm:text-6xl">
             {slide.title}
           </h1>
         )}
+        {slide.subtitle && (
+          <p className="mt-3 max-w-xl text-lg font-medium text-white/95 sm:text-xl">
+            {slide.subtitle}
+          </p>
+        )}
         {slide.body && (
           <p className="mt-4 max-w-xl text-base text-white/90 sm:text-lg">{slide.body}</p>
         )}
-        <a
-          href="#inventory"
-          className="mt-8 w-fit border border-white px-6 py-3 text-sm font-semibold tracking-wide transition hover:bg-white hover:text-brand-black"
-        >
-          VIEW AVAILABLE VEHICLES
-        </a>
+
+        {slide.buttons.length > 0 ? (
+          <div className="mt-8 flex flex-wrap gap-3">
+            {slide.buttons.map((button, i) => (
+              <CtaButtonLink key={`${button.label}-${i}`} button={button} />
+            ))}
+          </div>
+        ) : (
+          <a
+            href="#inventory"
+            className="mt-8 w-fit border border-white px-6 py-3 text-sm font-semibold tracking-wide transition hover:bg-white hover:text-brand-black"
+          >
+            VIEW AVAILABLE VEHICLES
+          </a>
+        )}
       </div>
 
       {slides.length > 1 && (

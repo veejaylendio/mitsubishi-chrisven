@@ -2,29 +2,11 @@
 
 import { useState } from "react";
 import LazyImage from "./LazyImage";
-
-export type VehicleImage = {
-  color_variant: string | null;
-  image_url: string;
-  hex_color: string | null;
-};
-
-export type VehicleTrim = {
-  id: string;
-  trim: string | null;
-  price: number | null;
-  description: string | null;
-  images: VehicleImage[];
-};
-
-export type VehicleGroup = {
-  name: string;
-  trims: VehicleTrim[];
-};
+import type { VehicleGroup } from "@/lib/types";
 
 const TRIM_ORDER = ["GLX", "GLS", "GT"];
 
-function sortTrims(trims: VehicleTrim[]) {
+function sortTrims(trims: VehicleGroup["trims"]) {
   return [...trims].sort((a, b) => {
     const aIndex = TRIM_ORDER.indexOf(a.trim ?? "");
     const bIndex = TRIM_ORDER.indexOf(b.trim ?? "");
@@ -59,16 +41,29 @@ export default function VehicleCard({
     activeTrim.images.find((img) => (img.color_variant ?? "Default") === selectedColor) ??
     activeTrim.images[0];
 
+  const specs = [
+    activeTrim.year,
+    activeTrim.mileage != null ? `${activeTrim.mileage.toLocaleString()} km` : null,
+    activeTrim.fuel_type,
+  ].filter(Boolean);
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-sm">
-      {activeImage && (
-        <LazyImage
-          src={activeImage.image_url}
-          alt={`${vehicle.name} ${activeTrim.trim ?? ""} in ${selectedColor}`}
-          wrapperClassName="h-56 w-full"
-          eager={eager}
-        />
-      )}
+      <div className="relative">
+        {activeImage && (
+          <LazyImage
+            src={activeImage.image_url}
+            alt={`${vehicle.name} ${activeTrim.trim ?? ""} in ${selectedColor}`}
+            wrapperClassName="h-56 w-full"
+            eager={eager}
+          />
+        )}
+        {activeTrim.badge && (
+          <span className="absolute left-3 top-3 rounded-full bg-brand-red px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+            {activeTrim.badge}
+          </span>
+        )}
+      </div>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="text-lg font-bold text-brand-black">{vehicle.name}</h3>
 
@@ -94,6 +89,9 @@ export default function VehicleCard({
           <p className="mt-2 text-xl font-bold text-brand-red">
             ₱{Number(activeTrim.price).toLocaleString()}
           </p>
+        )}
+        {specs.length > 0 && (
+          <p className="mt-1 text-xs font-medium text-gray-500">{specs.join(" · ")}</p>
         )}
         {activeTrim.description && (
           <p className="mt-2 text-sm text-gray-600">{activeTrim.description}</p>

@@ -1,60 +1,52 @@
 import ReactDOM from "react-dom";
-import { createClient } from "@/lib/supabase/server";
 import NavBar from "@/components/NavBar";
-import HeroCarousel from "@/components/HeroCarousel";
-import VehicleCarousel from "@/components/VehicleCarousel";
-import ReviewsSection from "@/components/ReviewsSection";
-import ClientsGallery from "@/components/ClientsGallery";
 import Footer from "@/components/Footer";
+import {
+  getActiveProfile,
+  getSectionsForProfile,
+  getHeroSlides,
+  getVehicleGroups,
+  getReviews,
+  getClientPhotos,
+} from "@/lib/content/queries";
+import {
+  HERO_VARIANTS,
+  VEHICLES_VARIANTS,
+  REVIEWS_VARIANTS,
+  CLIENTS_VARIANTS,
+  DEFAULT_VARIANT,
+} from "@/components/sections/registry";
+import type { PageSection, SectionKey } from "@/lib/types";
+
+const FALLBACK_SECTIONS: PageSection[] = (
+  ["hero", "vehicles", "reviews", "clients"] as SectionKey[]
+).map((section_key, i) => ({
+  id: section_key,
+  profile_id: "",
+  section_key,
+  is_visible: true,
+  sort_order: i,
+  layout_variant: DEFAULT_VARIANT[section_key],
+  settings: {},
+}));
 
 export default async function Home() {
-  const supabase = await createClient();
+  const profile = await getActiveProfile();
 
-  const [{ data: heroSlides }, { data: vehicles }, { data: vehicleImages }, { data: reviews }, { data: clientPhotos }] =
-    await Promise.all([
-      supabase
-        .from("landing_content")
-        .select("id, title, body, image_url")
-        .eq("section", "hero_slide")
-        .eq("is_active", true)
-        .order("sort_order"),
-      supabase
-        .from("vehicles")
-        .select("id, name, trim, price, description")
-        .eq("is_available", true)
-        .order("sort_order"),
-      supabase
-        .from("vehicle_images")
-        .select("vehicle_id, color_variant, image_url, hex_color, sort_order")
-        .order("sort_order"),
-      supabase
-        .from("reviews")
-        .select("id, author_name, rating, body")
-        .eq("is_published", true)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("clients_gallery")
-        .select("id, image_url, caption")
-        .order("sort_order"),
-    ]);
+  const [sections, heroSlides, vehicleGroups, reviews, clientPhotos] = await Promise.all([
+    profile ? getSectionsForProfile(profile.id) : Promise.resolve([]),
+    getHeroSlides(),
+    getVehicleGroups(),
+    getReviews(),
+    getClientPhotos(),
+  ]);
 
-  const vehiclesWithImages = (vehicles ?? []).map((vehicle) => ({
-    ...vehicle,
-    images: (vehicleImages ?? []).filter((img) => img.vehicle_id === vehicle.id),
-  }));
+  const orderedSections = (sections.length > 0 ? sections : FALLBACK_SECTIONS)
+    .filter((s) => s.is_visible)
+    .sort((a, b) => a.sort_order - b.sort_order);
 
-  const vehicleGroups = Object.values(
-    vehiclesWithImages.reduce<Record<string, { name: string; trims: typeof vehiclesWithImages }>>(
-      (groups, vehicle) => {
-        groups[vehicle.name] ??= { name: vehicle.name, trims: [] };
-        groups[vehicle.name].trims.push(vehicle);
-        return groups;
-      },
-      {},
-    ),
-  );
-
-  const firstHeroImage = heroSlides?.[0]?.image_url;
+  const heroSection = orderedSections.find((s) => s.section_key === "hero");
+  const firstHeroImage = heroSection ? heroSlides[0]?.image_url : undefined;
   if (firstHeroImage) {
     ReactDOM.preload(firstHeroImage, { as: "image", fetchPriority: "high" });
   }
@@ -62,19 +54,47 @@ export default async function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <NavBar />
-      <HeroCarousel slides={heroSlides ?? []} />
 
-      <section id="inventory" className="py-16">
-        <h2 className="text-center text-2xl font-bold text-brand-black">
-          Available Vehicles
-        </h2>
-        <div className="mt-10">
-          <VehicleCarousel groups={vehicleGroups} />
-        </div>
-      </section>
+      {orderedSections.map((section) => {
+        switch (section.section_key) {
+          case "hero": {
+            const Hero =
+              HERO_VARIANTS[section.layout_variant as keyof typeof HERO_VARIANTS] ??
+              HERO_VARIANTS[DEFAULT_VARIANT.hero];
+            return <Hero key={section.id} slides={heroSlides} />;
+          }
+          case "vehicles": {
+            const Vehicles =
+              VEHICLES_VARIANTS[section.layout_variant as keyof typeof VEHICLES_VARIANTS] ??
+              VEHICLES_VARIANTS[DEFAULT_VARIANT.vehicles];
+            return (
+              <section key={section.id} id="inventory" className="py-16">
+                <h2 className="text-center text-2xl font-bold text-brand-black">
+                  Available Vehicles
+                </h2>
+                <div className="mt-10">
+                  <Vehicles groups={vehicleGroups} />
+                </div>
+              </section>
+            );
+          }
+          case "reviews": {
+            const Reviews =
+              REVIEWS_VARIANTS[section.layout_variant as keyof typeof REVIEWS_VARIANTS] ??
+              REVIEWS_VARIANTS[DEFAULT_VARIANT.reviews];
+            return <Reviews key={section.id} reviews={reviews} />;
+          }
+          case "clients": {
+            const Clients =
+              CLIENTS_VARIANTS[section.layout_variant as keyof typeof CLIENTS_VARIANTS] ??
+              CLIENTS_VARIANTS[DEFAULT_VARIANT.clients];
+            return <Clients key={section.id} photos={clientPhotos} />;
+          }
+          default:
+            return null;
+        }
+      })}
 
-      <ReviewsSection reviews={reviews ?? []} />
-      <ClientsGallery photos={clientPhotos ?? []} />
       <Footer />
     </div>
   );
