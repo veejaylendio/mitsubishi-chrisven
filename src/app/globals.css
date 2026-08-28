@@ -12,6 +12,8 @@
   --font-body: var(--font-geist-sans);
   --heading-weight: 700;
   --body-weight: 400;
+  --letter-spacing: normal;
+  --text-case: none;
 }
 
 @theme inline {
@@ -35,6 +37,8 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading), Arial, Helvetica, sans-serif;
   font-weight: var(--heading-weight);
+  letter-spacing: var(--letter-spacing);
+  text-transform: var(--text-case);
 }
 
 .scrollbar-hide {

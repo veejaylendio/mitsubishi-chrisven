@@ -86,7 +86,7 @@ export async function getReviews(): Promise<Review[]> {
       "id, author_name, rating, body, reviewer_photo_url, source_platform, is_featured, is_anonymous",
     )
     .eq("is_published", true)
-    .order("created_at", { ascending: false });
+    .order("sort_order");
   return (data as Review[]) ?? [];
 }
 

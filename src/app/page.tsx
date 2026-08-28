@@ -16,7 +16,19 @@ import {
   CLIENTS_VARIANTS,
   DEFAULT_VARIANT,
 } from "@/components/sections/registry";
-import type { PageSection, SectionKey } from "@/lib/types";
+import type { PageSection, SectionKey, TypographySettings } from "@/lib/types";
+import { resolveSectionTypography, typographyToCssVars } from "@/lib/typography";
+
+const DEFAULT_TYPOGRAPHY: TypographySettings = {
+  headingFont: "geist",
+  bodyFont: "geist",
+  headingWeight: "bold",
+  bodyWeight: "regular",
+  sizeScale: "medium",
+  letterSpacing: "normal",
+  textCase: "normal",
+  sectionOverrides: {},
+};
 
 const FALLBACK_SECTIONS: PageSection[] = (
   ["hero", "vehicles", "reviews", "clients"] as SectionKey[]
@@ -51,24 +63,34 @@ export default async function Home() {
     ReactDOM.preload(firstHeroImage, { as: "image", fetchPriority: "high" });
   }
 
+  const typography = profile?.typography ?? DEFAULT_TYPOGRAPHY;
+
   return (
     <div className="flex flex-1 flex-col">
       <NavBar />
 
       {orderedSections.map((section) => {
+        const sectionStyle = typographyToCssVars(
+          resolveSectionTypography(typography, section.section_key),
+        );
+
         switch (section.section_key) {
           case "hero": {
             const Hero =
               HERO_VARIANTS[section.layout_variant as keyof typeof HERO_VARIANTS] ??
               HERO_VARIANTS[DEFAULT_VARIANT.hero];
-            return <Hero key={section.id} slides={heroSlides} />;
+            return (
+              <div key={section.id} style={sectionStyle}>
+                <Hero slides={heroSlides} />
+              </div>
+            );
           }
           case "vehicles": {
             const Vehicles =
               VEHICLES_VARIANTS[section.layout_variant as keyof typeof VEHICLES_VARIANTS] ??
               VEHICLES_VARIANTS[DEFAULT_VARIANT.vehicles];
             return (
-              <section key={section.id} id="inventory" className="py-16">
+              <section key={section.id} id="inventory" className="py-16" style={sectionStyle}>
                 <h2 className="text-center text-2xl font-bold text-brand-black">
                   Available Vehicles
                 </h2>
@@ -82,13 +104,21 @@ export default async function Home() {
             const Reviews =
               REVIEWS_VARIANTS[section.layout_variant as keyof typeof REVIEWS_VARIANTS] ??
               REVIEWS_VARIANTS[DEFAULT_VARIANT.reviews];
-            return <Reviews key={section.id} reviews={reviews} />;
+            return (
+              <div key={section.id} style={sectionStyle}>
+                <Reviews reviews={reviews} />
+              </div>
+            );
           }
           case "clients": {
             const Clients =
               CLIENTS_VARIANTS[section.layout_variant as keyof typeof CLIENTS_VARIANTS] ??
               CLIENTS_VARIANTS[DEFAULT_VARIANT.clients];
-            return <Clients key={section.id} photos={clientPhotos} />;
+            return (
+              <div key={section.id} style={sectionStyle}>
+                <Clients photos={clientPhotos} />
+              </div>
+            );
           }
           default:
             return null;

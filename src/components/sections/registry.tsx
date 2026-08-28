@@ -35,3 +35,36 @@ export const DEFAULT_VARIANT = {
   reviews: "grid_masonry",
   clients: "grid_masonry",
 } as const;
+
+export type VariantOption = { key: string; label: string; implemented: boolean };
+
+/** Full set of variants named in the spec. `implemented: false` = picker shows it as "Coming soon". */
+export const VARIANT_CATALOG: Record<"hero" | "vehicles" | "reviews" | "clients", VariantOption[]> = {
+  hero: [
+    { key: "classic_centered", label: "Classic Centered", implemented: true },
+    { key: "split", label: "Split Layout", implemented: true },
+    { key: "slideshow", label: "Slideshow / Carousel Hero", implemented: false },
+    { key: "video_overlay", label: "Video Hero with Overlay", implemented: false },
+  ],
+  vehicles: [
+    { key: "carousel", label: "Carousel", implemented: true },
+    { key: "bento", label: "Bento Grid", implemented: true },
+    { key: "table", label: "Table View", implemented: false },
+    { key: "card_grid_filters", label: "Card Grid with Quick Filters", implemented: false },
+  ],
+  reviews: [
+    { key: "grid_masonry", label: "Grid / Masonry", implemented: true },
+    { key: "carousel", label: "Carousel / Slider", implemented: true },
+    { key: "bento", label: "Bento", implemented: false },
+    { key: "video_spotlight", label: "Video Testimonial Spotlight", implemented: false },
+    { key: "stat_combo", label: "Stat + Review Combo", implemented: false },
+  ],
+  clients: [
+    { key: "grid_masonry", label: "Grid / Masonry", implemented: true },
+    { key: "carousel", label: "Carousel / Slider", implemented: true },
+    { key: "bento", label: "Bento Grid", implemented: false },
+    { key: "polaroid", label: "Polaroid / Scrapbook Wall", implemented: false },
+    { key: "story_card", label: "Before/Story Card", implemented: false },
+    { key: "map", label: "Map / Location Wall", implemented: false },
+  ],
+};
