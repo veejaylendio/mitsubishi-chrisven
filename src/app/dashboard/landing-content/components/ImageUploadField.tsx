@@ -21,6 +21,7 @@ export default function ImageUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isVideo = accept.includes("video");
 
   const handleFile = async (file: File) => {
     setBusy(true);
@@ -50,7 +51,10 @@ export default function ImageUploadField({
     <div>
       <label className="block text-xs font-medium text-gray-500">{label}</label>
       <div className="mt-1 flex items-center gap-3">
-        {value && (
+        {value && isVideo && (
+          <video src={value} className="h-16 w-16 rounded-md object-cover" muted />
+        )}
+        {value && !isVideo && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value} alt="" className="h-16 w-16 rounded-md object-cover" />
         )}

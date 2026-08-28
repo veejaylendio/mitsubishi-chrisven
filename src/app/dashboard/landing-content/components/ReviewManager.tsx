@@ -22,6 +22,7 @@ type ReviewFormValue = {
   rating: number | null;
   body: string | null;
   reviewer_photo_url: string | null;
+  video_url: string | null;
   source_platform: string | null;
   is_featured: boolean;
   is_anonymous: boolean;
@@ -33,6 +34,7 @@ const EMPTY_REVIEW: ReviewFormValue = {
   rating: 5,
   body: "",
   reviewer_photo_url: null,
+  video_url: null,
   source_platform: null,
   is_featured: false,
   is_anonymous: false,
@@ -111,6 +113,13 @@ function ReviewForm({
           value={value.reviewer_photo_url}
           onChange={(url) => setValue({ ...value, reviewer_photo_url: url })}
           folder="reviews"
+        />
+        <ImageUploadField
+          label="Video testimonial (optional)"
+          value={value.video_url}
+          onChange={(url) => setValue({ ...value, video_url: url })}
+          folder="reviews"
+          accept="video/mp4,video/webm"
         />
       </div>
 

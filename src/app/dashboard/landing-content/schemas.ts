@@ -41,6 +41,7 @@ export const reviewSchema = z.object({
   rating: z.number().min(1).max(5).nullable(),
   body: z.string().max(1000).nullable(),
   reviewer_photo_url: z.string().max(1000).nullable(),
+  video_url: z.string().max(1000).nullable(),
   source_platform: z.string().max(60).nullable(),
   is_featured: z.boolean(),
   is_anonymous: z.boolean(),

@@ -83,7 +83,7 @@ export async function getReviews(): Promise<Review[]> {
   const { data } = await supabase
     .from("reviews")
     .select(
-      "id, author_name, rating, body, reviewer_photo_url, source_platform, is_featured, is_anonymous",
+      "id, author_name, rating, body, reviewer_photo_url, video_url, source_platform, is_featured, is_anonymous",
     )
     .eq("is_published", true)
     .order("sort_order");

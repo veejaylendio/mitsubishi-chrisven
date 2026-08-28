@@ -94,7 +94,7 @@ export async function getAllReviewsAdmin(): Promise<AdminReview[]> {
   const { data } = await supabase
     .from("reviews")
     .select(
-      "id, author_name, rating, body, reviewer_photo_url, source_platform, is_featured, is_anonymous, is_published, sort_order, created_at",
+      "id, author_name, rating, body, reviewer_photo_url, video_url, source_platform, is_featured, is_anonymous, is_published, sort_order, created_at",
     )
     .order("sort_order");
   return (data as AdminReview[]) ?? [];

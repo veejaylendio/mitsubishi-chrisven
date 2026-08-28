@@ -48,6 +48,7 @@ export type AdminReview = {
   rating: number | null;
   body: string | null;
   reviewer_photo_url: string | null;
+  video_url: string | null;
   source_platform: string | null;
   is_featured: boolean;
   is_anonymous: boolean;
