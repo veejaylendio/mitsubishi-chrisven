@@ -3,7 +3,7 @@ import {
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getR2Bucket, getR2Client, publicUrlFor } from "./client";
+import { getR2Bucket, getR2Client, publicUrlFor, IMAGE_PROXY_PREFIX } from "./client";
 
 /**
  * Uploads a file to R2 from the server (route handler / server action) and
@@ -47,9 +47,15 @@ export async function deleteImage(key: string): Promise<void> {
   );
 }
 
-/** Extracts the object key from a public R2 URL produced by publicUrlFor. */
+/** Extracts the object key from a URL produced by publicUrlFor. */
 export function keyFromPublicUrl(url: string): string | null {
+  if (url.startsWith(IMAGE_PROXY_PREFIX)) {
+    return url.slice(IMAGE_PROXY_PREFIX.length);
+  }
+  // Legacy URLs saved back when publicUrlFor pointed at R2's own public bucket URL.
   const base = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
-  if (!base || !url.startsWith(`${base}/`)) return null;
-  return url.slice(base.length + 1);
+  if (base && url.startsWith(`${base}/`)) {
+    return url.slice(base.length + 1);
+  }
+  return null;
 }

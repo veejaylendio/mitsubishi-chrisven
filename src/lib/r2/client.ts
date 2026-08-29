@@ -21,7 +21,14 @@ export function getR2Bucket(): string {
   return requireEnv("R2_BUCKET_NAME");
 }
 
+/** Path prefix for the route that proxies R2 objects (see src/app/api/images/[...key]/route.ts). */
+export const IMAGE_PROXY_PREFIX = "/api/images/";
+
+/**
+ * Returns a URL our own app serves the object from, rather than R2's public
+ * bucket URL — this works without depending on R2's Public Development URL
+ * (which is rate-limited/unreliable) or a custom domain being set up.
+ */
 export function publicUrlFor(key: string): string {
-  const base = requireEnv("R2_PUBLIC_URL").replace(/\/$/, "");
-  return `${base}/${key}`;
+  return `${IMAGE_PROXY_PREFIX}${key}`;
 }

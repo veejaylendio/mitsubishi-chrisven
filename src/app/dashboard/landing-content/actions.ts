@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getPresignedUploadUrl, deleteImage, keyFromPublicUrl } from "@/lib/r2/storage";
+import { publicUrlFor } from "@/lib/r2/client";
 import type { TypographySettings } from "@/lib/types";
 import {
   heroSlideSchema,
@@ -75,7 +76,7 @@ export async function requestUploadUrl(input: z.infer<typeof uploadRequestSchema
   const safeName = parsed.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
   const key = `${parsed.folder}/${randomUUID()}-${safeName}`;
   const uploadUrl = await getPresignedUploadUrl(key, parsed.contentType);
-  const publicUrl = uploadUrl.split("?")[0];
+  const publicUrl = publicUrlFor(key);
   return { uploadUrl, publicUrl };
 }
 
