@@ -6,7 +6,14 @@ import CtaButtonLink from "@/components/CtaButtonLink";
 import type { HeroSlide } from "@/lib/types";
 
 /** Auto-rotating hero with a thumbnail strip for direct navigation (vs. dots). */
-export default function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+export default function HeroSlideshow({
+  slides,
+  compact = false,
+}: {
+  slides: HeroSlide[];
+  /** Fixed height instead of 100vh — used by the admin preview, which isn't full-viewport. */
+  compact?: boolean;
+}) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -19,7 +26,9 @@ export default function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
   const slide = slides[index];
 
   return (
-    <section className="relative h-[calc(100vh-5rem)] min-h-[520px] w-full overflow-hidden bg-brand-black">
+    <section
+      className={`relative w-full overflow-hidden bg-brand-black ${compact ? "h-[480px]" : "h-[calc(100vh-5rem)] min-h-[520px]"}`}
+    >
       {slide.image_url && (
         <LazyImage
           key={slide.id}

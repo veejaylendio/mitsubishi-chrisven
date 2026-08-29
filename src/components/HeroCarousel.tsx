@@ -11,7 +11,14 @@ const ALIGN_CLASS = {
   right: "items-end text-right",
 } as const;
 
-export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
+export default function HeroCarousel({
+  slides,
+  compact = false,
+}: {
+  slides: HeroSlide[];
+  /** Fixed height instead of 100vh — used by the admin preview, which isn't full-viewport. */
+  compact?: boolean;
+}) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -29,7 +36,9 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const alignClass = ALIGN_CLASS[slide.text_align] ?? ALIGN_CLASS.center;
 
   return (
-    <section className="relative h-[calc(100vh-5rem)] min-h-[520px] w-full overflow-hidden bg-brand-black">
+    <section
+      className={`relative w-full overflow-hidden bg-brand-black ${compact ? "h-[480px]" : "h-[calc(100vh-5rem)] min-h-[520px]"}`}
+    >
       {slide.media_type === "video" && slide.video_url ? (
         <video
           key={slide.id}

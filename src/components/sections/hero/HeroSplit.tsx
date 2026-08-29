@@ -11,7 +11,13 @@ const ALIGN_CLASS = {
 } as const;
 
 /** Split hero shows a single featured slide — no carousel rotation. */
-export default function HeroSplit({ slides }: { slides: HeroSlide[] }) {
+export default function HeroSplit({
+  slides,
+}: {
+  slides: HeroSlide[];
+  /** Unused here (this layout's height is already content-driven, not 100vh) — kept for a consistent signature across hero variants. */
+  compact?: boolean;
+}) {
   if (slides.length === 0) return null;
   const slide = slides[0];
 

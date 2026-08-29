@@ -85,7 +85,7 @@ export default function PreviewPane({
                     HERO_VARIANTS[DEFAULT_VARIANT.hero];
                   return (
                     <div key={section.section_key} style={sectionStyle}>
-                      <Hero slides={heroSlides} />
+                      <Hero slides={heroSlides} compact />
                     </div>
                   );
                 }

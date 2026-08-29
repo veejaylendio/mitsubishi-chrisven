@@ -132,7 +132,7 @@ export default function PageConfigEditor({
           </div>
         </aside>
 
-        <main className="flex-1 overflow-hidden">
+        <main className="min-w-0 flex-1 overflow-hidden">
           <PreviewPane
             heroSlides={heroSlidesPublicShape}
             vehicleGroups={vehicleGroups}

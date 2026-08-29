@@ -25,7 +25,7 @@ export const HERO_VARIANTS = {
   split: HeroSplit,
   slideshow: HeroSlideshow,
   video_overlay: HeroVideoOverlay,
-} satisfies Record<string, ComponentType<{ slides: HeroSlide[] }>>;
+} satisfies Record<string, ComponentType<{ slides: HeroSlide[]; compact?: boolean }>>;
 
 export const VEHICLES_VARIANTS = {
   carousel: VehicleCarousel,

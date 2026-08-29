@@ -7,12 +7,21 @@ import type { HeroSlide } from "@/lib/types";
  * center-anchored text, heavier full-coverage overlay. No carousel controls —
  * intended for one strong promotional moment rather than rotating slides.
  */
-export default function HeroVideoOverlay({ slides }: { slides: HeroSlide[] }) {
+export default function HeroVideoOverlay({
+  slides,
+  compact = false,
+}: {
+  slides: HeroSlide[];
+  /** Fixed height instead of 100vh — used by the admin preview, which isn't full-viewport. */
+  compact?: boolean;
+}) {
   if (slides.length === 0) return null;
   const slide = slides[0];
 
   return (
-    <section className="relative flex h-[calc(100vh-5rem)] min-h-[520px] w-full items-center justify-center overflow-hidden bg-brand-black">
+    <section
+      className={`relative flex w-full items-center justify-center overflow-hidden bg-brand-black ${compact ? "h-[480px]" : "h-[calc(100vh-5rem)] min-h-[520px]"}`}
+    >
       {slide.video_url ? (
         <video
           src={slide.video_url}
