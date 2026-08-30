@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCanvasStore } from "./store";
 import ProfileToolbar from "./components/ProfileToolbar";
 import SectionList from "./components/SectionList";
+import PanelToggleButton from "./components/PanelToggleButton";
 import PreviewPane from "./components/PreviewPane";
 import TypographyPanel from "./components/TypographyPanel";
 import HeroEditor from "./components/HeroEditor";
@@ -116,20 +117,25 @@ export default function PageConfigEditor({
         profiles={profiles}
         currentProfile={currentProfile}
         dueProfiles={dueProfiles}
-        panelOpen={panelOpen}
-        onTogglePanel={togglePanel}
         onOpenPreview={() => setFullPreview(true)}
+        onOpenTypography={() => setTypographyOpen(true)}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <aside
-          className={`shrink-0 overflow-hidden border-gray-200 bg-gray-50 transition-[width] duration-200 ease-out ${
-            panelOpen ? "w-96 border-r" : "w-0 border-r-0"
+          className={`shrink-0 overflow-hidden border-r border-gray-200 bg-gray-50 transition-[width] duration-200 ease-out ${
+            panelOpen ? "w-96" : "w-10"
           }`}
         >
-          <div className="h-full w-96 overflow-y-auto">
-            <SectionList onManageContent={setManager} onOpenTypography={() => setTypographyOpen(true)} />
-          </div>
+          {panelOpen ? (
+            <div className="h-full w-96 overflow-y-auto">
+              <SectionList onManageContent={setManager} panelOpen={panelOpen} onTogglePanel={togglePanel} />
+            </div>
+          ) : (
+            <div className="flex h-full w-10 justify-center pt-4">
+              <PanelToggleButton panelOpen={panelOpen} onTogglePanel={togglePanel} />
+            </div>
+          )}
         </aside>
 
         <main className="min-w-0 flex-1 overflow-hidden">
