@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCanvasStore } from "../store";
 import SortableList from "./SortableList";
 import { SectionTypographyEditor, SECTION_LABEL } from "./TypographyControls";
+import PanelToggleButton from "./PanelToggleButton";
 import { VARIANT_CATALOG } from "@/components/sections/registry";
 import type { SectionKey } from "@/lib/types";
 
@@ -115,10 +116,12 @@ function SectionDetail({
 
 export default function SectionList({
   onManageContent,
-  onOpenTypography,
+  panelOpen,
+  onTogglePanel,
 }: {
   onManageContent: (key: SectionKey) => void;
-  onOpenTypography: () => void;
+  panelOpen: boolean;
+  onTogglePanel: () => void;
 }) {
   const sections = useCanvasStore((s) => s.sections);
   const toggleVisible = useCanvasStore((s) => s.toggleVisible);
@@ -142,13 +145,7 @@ export default function SectionList({
     <div className="p-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Sections</span>
-        <button
-          type="button"
-          onClick={onOpenTypography}
-          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
-        >
-          Typography
-        </button>
+        <PanelToggleButton panelOpen={panelOpen} onTogglePanel={onTogglePanel} />
       </div>
       <SortableList
         items={items}
