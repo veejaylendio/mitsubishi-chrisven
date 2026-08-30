@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type LazyImageProps = {
   src: string;
@@ -34,6 +34,17 @@ export default function LazyImage({
   lcp = false,
 }: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // The browser starts loading <img src> as soon as it parses the HTML,
+  // independent of React — by the time hydration attaches onLoad/onError
+  // below, a fast (e.g. cached or local) image may have already finished,
+  // so that event never reaches us. Catch that already-settled state here.
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setLoaded(true);
+    }
+  }, []);
 
   if (lcp) {
     return (
@@ -49,6 +60,7 @@ export default function LazyImage({
       {!loaded && <div className="absolute inset-0 animate-pulse bg-gray-200" />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         loading={eager ? "eager" : "lazy"}

@@ -7,6 +7,13 @@
   --brand-red-dark: #970b21;
   --brand-black: #111111;
   --brand-white: #ffffff;
+  /* Defaults; overridden per-request via inline style on <html> from the active profile's typography. */
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --heading-weight: 700;
+  --body-weight: 400;
+  --letter-spacing: normal;
+  --text-case: none;
 }
 
 @theme inline {
@@ -23,7 +30,15 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  font-weight: var(--body-weight);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), Arial, Helvetica, sans-serif;
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--letter-spacing);
+  text-transform: var(--text-case);
 }
 
 .scrollbar-hide {

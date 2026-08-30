@@ -1,30 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LazyImage from "./LazyImage";
-
-export type VehicleImage = {
-  color_variant: string | null;
-  image_url: string;
-  hex_color: string | null;
-};
-
-export type VehicleTrim = {
-  id: string;
-  trim: string | null;
-  price: number | null;
-  description: string | null;
-  images: VehicleImage[];
-};
-
-export type VehicleGroup = {
-  name: string;
-  trims: VehicleTrim[];
-};
+import type { VehicleGroup } from "@/lib/types";
 
 const TRIM_ORDER = ["GLX", "GLS", "GT"];
 
-function sortTrims(trims: VehicleTrim[]) {
+function sortTrims(trims: VehicleGroup["trims"]) {
   return [...trims].sort((a, b) => {
     const aIndex = TRIM_ORDER.indexOf(a.trim ?? "");
     const bIndex = TRIM_ORDER.indexOf(b.trim ?? "");
@@ -38,11 +20,21 @@ function sortTrims(trims: VehicleTrim[]) {
 export default function VehicleCard({
   vehicle,
   eager = false,
+  imageHeightClassName = "h-56",
+  orientation = "vertical",
+  imagePosition = "start",
 }: {
   vehicle: VehicleGroup;
   /** Set true for cards visible without scrolling (e.g. the carousel's initial slide). */
   eager?: boolean;
+  /** Override the image wrapper height, e.g. for a larger spotlight tile. */
+  imageHeightClassName?: string;
+  /** "horizontal" lays the image and content side by side, for spotlight/showcase treatments. */
+  orientation?: "vertical" | "horizontal";
+  /** Which side the image sits on when orientation is "horizontal". */
+  imagePosition?: "start" | "end";
 }) {
+  const isHorizontal = orientation === "horizontal";
   const trims = sortTrims(vehicle.trims);
   const [trimIndex, setTrimIndex] = useState(0);
   const activeTrim = trims[trimIndex];
@@ -59,18 +51,41 @@ export default function VehicleCard({
     activeTrim.images.find((img) => (img.color_variant ?? "Default") === selectedColor) ??
     activeTrim.images[0];
 
+  const specs = [
+    activeTrim.year,
+    activeTrim.mileage != null ? `${activeTrim.mileage.toLocaleString()} km` : null,
+    activeTrim.fuel_type,
+  ].filter(Boolean);
+
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-sm">
-      {activeImage && (
-        <LazyImage
-          src={activeImage.image_url}
-          alt={`${vehicle.name} ${activeTrim.trim ?? ""} in ${selectedColor}`}
-          wrapperClassName="h-56 w-full"
-          eager={eager}
-        />
-      )}
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="text-lg font-bold text-brand-black">{vehicle.name}</h3>
+    <div
+      className={`flex h-full overflow-hidden rounded-lg bg-white shadow-sm ${
+        isHorizontal
+          ? imagePosition === "end"
+            ? "flex-col sm:flex-row-reverse"
+            : "flex-col sm:flex-row"
+          : "flex-col"
+      }`}
+    >
+      <div className={`relative shrink-0 ${isHorizontal ? "sm:w-2/5" : ""}`}>
+        {activeImage && (
+          <LazyImage
+            src={activeImage.image_url}
+            alt={`${vehicle.name} ${activeTrim.trim ?? ""} in ${selectedColor}`}
+            wrapperClassName={`w-full ${isHorizontal ? `${imageHeightClassName} sm:h-full` : imageHeightClassName}`}
+            eager={eager}
+          />
+        )}
+        {activeTrim.badge && (
+          <span className="absolute left-3 top-3 rounded-full bg-brand-red px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+            {activeTrim.badge}
+          </span>
+        )}
+      </div>
+      <div className={`flex flex-1 flex-col ${isHorizontal ? "p-5 sm:p-8" : "p-5"}`}>
+        <h3 className={`font-bold text-brand-black ${isHorizontal ? "text-2xl" : "text-lg"}`}>
+          {vehicle.name}
+        </h3>
 
         <div className="mt-1 min-h-[28px]">
           {trims.length > 1 ? (
@@ -91,12 +106,21 @@ export default function VehicleCard({
         </div>
 
         {activeTrim.price && (
-          <p className="mt-2 text-xl font-bold text-brand-red">
+          <p className={`mt-2 font-bold text-brand-red ${isHorizontal ? "text-2xl" : "text-xl"}`}>
             ₱{Number(activeTrim.price).toLocaleString()}
           </p>
         )}
+        {specs.length > 0 && (
+          <p className="mt-1 text-xs font-medium text-gray-500">{specs.join(" · ")}</p>
+        )}
         {activeTrim.description && (
-          <p className="mt-2 text-sm text-gray-600">{activeTrim.description}</p>
+          <p
+            className={`mt-2 text-gray-600 ${
+              isHorizontal ? "line-clamp-3 text-base" : "line-clamp-2 text-sm"
+            }`}
+          >
+            {activeTrim.description}
+          </p>
         )}
 
         {colors.length > 1 && (
@@ -126,9 +150,11 @@ export default function VehicleCard({
 
         <a
           href={`/apply?vehicle=${activeTrim.id}`}
-          className="mt-auto block rounded-md bg-brand-black py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-red"
+          className={`mt-auto rounded-md bg-brand-black text-center text-sm font-semibold text-white transition hover:bg-brand-red ${
+            isHorizontal ? "inline-block self-start px-8 py-2.5" : "block py-2"
+          }`}
         >
-          Inquire / Apply
+          Get Quote
         </a>
       </div>
     </div>

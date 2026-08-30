@@ -21,9 +21,8 @@ export default function NavBar() {
           loading="eager"
           fetchPriority="high"
         />
-        Chrisven Romagos
       </Link>
-      <nav className="hidden gap-6 text-sm font-medium sm:flex">
+      <nav className="hidden gap-6 text-sm font-bold uppercase tracking-wider sm:flex">
         {LINKS.map((link) => (
           <Link
             key={link.href}
