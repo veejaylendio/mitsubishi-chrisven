@@ -5,7 +5,7 @@ import LazyImage from "@/components/LazyImage";
 import CtaButtonLink from "@/components/CtaButtonLink";
 import type { HeroSlide } from "@/lib/types";
 
-/** Auto-rotating hero with a thumbnail strip for direct navigation (vs. dots). */
+/** Auto-rotating hero with arrow navigation and pill-shaped slide indicators. */
 export default function HeroSlideshow({
   slides,
   compact = false,
@@ -24,19 +24,33 @@ export default function HeroSlideshow({
 
   if (slides.length === 0) return null;
   const slide = slides[index];
+  const goTo = (i: number) => setIndex((i + slides.length) % slides.length);
 
   return (
     <section
       className={`relative w-full overflow-hidden bg-brand-black ${compact ? "h-[480px]" : "h-[calc(100vh-5rem)] min-h-[520px]"}`}
     >
-      {slide.image_url && (
-        <LazyImage
+      {slide.media_type === "video" && slide.video_url ? (
+        <video
           key={slide.id}
-          src={slide.image_url}
-          alt={slide.title ?? ""}
-          wrapperClassName="absolute inset-0 h-full w-full"
-          lcp
+          src={slide.video_url}
+          poster={slide.image_url ?? undefined}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
         />
+      ) : (
+        slide.image_url && (
+          <LazyImage
+            key={slide.id}
+            src={slide.image_url}
+            alt={slide.title ?? ""}
+            wrapperClassName="absolute inset-0 h-full w-full"
+            lcp
+          />
+        )
       )}
       <div
         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
@@ -70,23 +84,42 @@ export default function HeroSlideshow({
       </div>
 
       {slides.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 px-4">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-14 w-20 shrink-0 overflow-hidden rounded border-2 transition ${
-                i === index ? "border-brand-red" : "border-white/40 opacity-70 hover:opacity-100"
-              }`}
-            >
-              {s.image_url && (
-                <LazyImage src={s.image_url} alt="" wrapperClassName="h-full w-full" eager />
-              )}
-            </button>
-          ))}
-        </div>
+        <>
+          <button
+            type="button"
+            aria-label="Previous slide"
+            onClick={() => goTo(index - 1)}
+            className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-white/70 transition hover:text-white sm:left-8"
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label="Next slide"
+            onClick={() => goTo(index + 1)}
+            className="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-white/70 transition hover:text-white sm:right-8"
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-label={`Go to slide ${i + 1}`}
+                onClick={() => setIndex(i)}
+                className={`h-1 rounded-full transition-all ${
+                  i === index ? "w-8 bg-brand-red" : "w-4 bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );

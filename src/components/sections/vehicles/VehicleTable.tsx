@@ -61,7 +61,7 @@ export default function VehicleTable({ groups }: { groups: VehicleGroup[] }) {
                     href={`/apply?vehicle=${row.id}`}
                     className="rounded-md bg-brand-black px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-red"
                   >
-                    Inquire
+                    Get Quote
                   </a>
                 </td>
               </tr>

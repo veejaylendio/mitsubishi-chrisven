@@ -49,11 +49,26 @@ async function nextSortOrder(
 
 async function reorderRows(table: string, orderedIds: string[]) {
   const { supabase } = await requireAdmin();
-  await Promise.all(
-    orderedIds.map((id, index) =>
-      supabase.from(table).update({ sort_order: index }).eq("id", id),
-    ),
-  );
+
+  // Two passes, each run sequentially: first push every row to a negative,
+  // mutually-unique placeholder so no intermediate write can collide with
+  // another row's current or soon-to-be sort_order, then assign the real
+  // 0..n-1 values. Running the updates concurrently (as this used to)
+  // let two rows briefly hold the same sort_order, so if the table enforces
+  // uniqueness on it, one update would fail and get silently dropped,
+  // leaving the drag-and-drop reorder only partially applied.
+  for (const [index, id] of orderedIds.entries()) {
+    const { error } = await supabase
+      .from(table)
+      .update({ sort_order: -1 - index })
+      .eq("id", id);
+    if (error) throw error;
+  }
+  for (const [index, id] of orderedIds.entries()) {
+    const { error } = await supabase.from(table).update({ sort_order: index }).eq("id", id);
+    if (error) throw error;
+  }
+
   afterContentChange();
 }
 

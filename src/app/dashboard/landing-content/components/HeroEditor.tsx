@@ -310,9 +310,20 @@ export default function HeroEditor({
             >
               ⠿
             </button>
-            {slide.image_url && (
+            {slide.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={slide.image_url} alt="" className="h-12 w-16 rounded object-cover" />
+            ) : (
+              slide.video_url && (
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video
+                  src={slide.video_url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="h-12 w-16 rounded bg-gray-900 object-cover"
+                />
+              )
             )}
             <div className="flex-1">
               <p className="text-sm font-medium text-brand-black">{slide.title || "Untitled"}</p>
