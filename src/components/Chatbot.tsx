@@ -149,11 +149,12 @@ export default function Chatbot() {
     if (!sessionId || !question.trim()) return;
     const body = question.trim();
     setQuestion("");
-    setMessages((prev) => [...prev, localMessage(sessionId, "visitor", body)]);
+    const optimistic = localMessage(sessionId, "visitor", body);
+    setMessages((prev) => [...prev, optimistic]);
     startTransition(async () => {
       const result = await askOtherQuestion(sessionId, body);
       if ("messages" in result) {
-        setMessages((prev) => [...prev, result.messages[1]]);
+        setMessages((prev) => [...prev.filter((m) => m.id !== optimistic.id), ...result.messages]);
       }
     });
   }
