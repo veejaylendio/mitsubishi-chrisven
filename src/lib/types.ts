@@ -49,6 +49,15 @@ export type VehicleGroup = {
   trims: VehicleTrim[];
 };
 
+export type VehicleOption = {
+  id: string;
+  name: string;
+  trim: string | null;
+  year: number | null;
+};
+
+export type FinancingType = "cash" | "loan";
+
 export type Review = {
   id: string;
   author_name: string;
@@ -71,6 +80,54 @@ export type ClientPhoto = {
   quote: string | null;
   branch: string | null;
   consent_confirmed: boolean;
+};
+
+export type ChatSessionStatus = "open" | "closed";
+
+export type ChatSession = {
+  id: string;
+  visitor_name: string | null;
+  visitor_phone: string | null;
+  visitor_email: string | null;
+  visitor_address: string | null;
+  status: ChatSessionStatus;
+  created_at: string;
+};
+
+export type ChatSender = "visitor" | "admin" | "bot";
+
+export type ChatMessage = {
+  id: string;
+  session_id: string;
+  sender: ChatSender;
+  body: string;
+  created_at: string;
+};
+
+export type Faq = {
+  id: string;
+  question: string;
+  answer: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type BankRate = {
+  id: string;
+  bank_name: string;
+  interest_rate: number;
+  min_term_months: number | null;
+  max_term_months: number | null;
+  notes: string | null;
+  is_active: boolean;
+};
+
+export type VehiclePriceOption = {
+  id: string;
+  name: string;
+  trim: string | null;
+  year: number | null;
+  price: number | null;
 };
 
 export type FontWeightPreset = "regular" | "medium" | "semibold" | "bold";

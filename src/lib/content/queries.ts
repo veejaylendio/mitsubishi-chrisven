@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
+  BankRate,
   ClientPhoto,
   CtaButton,
   HeroSlide,
@@ -7,6 +8,8 @@ import type {
   PageSection,
   Review,
   VehicleGroup,
+  VehicleOption,
+  VehiclePriceOption,
   VehicleTrim,
 } from "@/lib/types";
 
@@ -76,6 +79,38 @@ export async function getVehicleGroups(): Promise<VehicleGroup[]> {
   }
 
   return Object.values(groups);
+}
+
+export async function getVehicleOptions(): Promise<VehicleOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("vehicles")
+    .select("id, name, trim, year")
+    .eq("is_available", true)
+    .eq("is_archived", false)
+    .order("sort_order");
+  return (data as VehicleOption[]) ?? [];
+}
+
+export async function getVehiclePriceOptions(): Promise<VehiclePriceOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("vehicles")
+    .select("id, name, trim, year, price")
+    .eq("is_available", true)
+    .eq("is_archived", false)
+    .order("sort_order");
+  return (data as VehiclePriceOption[]) ?? [];
+}
+
+export async function getBankRates(): Promise<BankRate[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("bank_rates")
+    .select("id, bank_name, interest_rate, min_term_months, max_term_months, notes, is_active")
+    .eq("is_active", true)
+    .order("interest_rate", { ascending: true });
+  return (data as BankRate[]) ?? [];
 }
 
 export async function getReviews(): Promise<Review[]> {

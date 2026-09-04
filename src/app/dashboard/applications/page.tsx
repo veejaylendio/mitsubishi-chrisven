@@ -4,7 +4,7 @@ export default async function ApplicationsPage() {
   const supabase = await createClient();
   const { data: applications } = await supabase
     .from("applications")
-    .select("id, full_name, phone, email, status, created_at")
+    .select("id, full_name, phone, email, financing_type, status, created_at")
     .order("created_at", { ascending: false });
 
   return (
@@ -20,6 +20,7 @@ export default async function ApplicationsPage() {
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Financing</th>
               <th className="px-4 py-3">Status</th>
             </tr>
           </thead>
@@ -30,12 +31,15 @@ export default async function ApplicationsPage() {
                   <td className="px-4 py-3">{a.full_name}</td>
                   <td className="px-4 py-3">{a.phone}</td>
                   <td className="px-4 py-3">{a.email}</td>
+                  <td className="px-4 py-3">
+                    {a.financing_type === "loan" ? "Auto Loan" : "Cash"}
+                  </td>
                   <td className="px-4 py-3">{a.status}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-4 py-3 text-gray-400" colSpan={4}>
+                <td className="px-4 py-3 text-gray-400" colSpan={5}>
                   No applications yet.
                 </td>
               </tr>

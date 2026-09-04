@@ -5,6 +5,7 @@ import { FONT_VARIABLE_CLASSES } from "@/lib/fonts";
 import { typographyToCssVars } from "@/lib/typography";
 import { getActiveProfile } from "@/lib/content/queries";
 import type { TypographySettings } from "@/lib/types";
+import Chatbot from "@/components/Chatbot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +44,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${FONT_VARIABLE_CLASSES} h-full antialiased`}
       style={typographyToCssVars(typography)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Chatbot />
+      </body>
     </html>
   );
 }

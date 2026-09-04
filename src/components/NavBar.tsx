@@ -4,8 +4,8 @@ import Link from "next/link";
 const LINKS = [
   { href: "/#inventory", label: "Vehicles" },
   { href: "/#reviews", label: "Reviews" },
-  { href: "/apply", label: "Application Form" },
-  { href: "/calculator", label: "Financing Calculator" },
+  { href: "/apply", label: "Apply" },
+  { href: "/calculator", label: "Financing" },
 ];
 
 export default function NavBar() {
