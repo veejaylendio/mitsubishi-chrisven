@@ -52,6 +52,29 @@ const NAV_ITEMS = [
       </>
     ),
   },
+  {
+    href: "/dashboard/financing",
+    label: "Financing Rates",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="9" cy="9.5" r="1.5" />
+        <circle cx="15" cy="14.5" r="1.5" />
+        <path d="M15.5 8.5l-7 7" />
+      </>
+    ),
+  },
+  {
+    href: "/dashboard/faqs",
+    label: "FAQs",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+        <path d="M12 17.5h.01" />
+      </>
+    ),
+  },
 ];
 
 export default function DashboardSidebar() {

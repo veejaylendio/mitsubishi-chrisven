@@ -8,10 +8,10 @@ export default function ReviewsBento({ reviews }: { reviews: Review[] }) {
   const rest = reviews.filter((r) => r.id !== featured.id);
 
   return (
-    <section id="reviews" className="bg-gray-50 px-6 py-16">
+    <section id="reviews" className="@container bg-gray-50 px-6 py-16">
       <h2 className="text-center text-2xl font-bold text-brand-black">What Customers Say</h2>
-      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-3">
-        <div className="flex flex-col justify-center rounded-lg bg-white p-8 shadow-sm sm:col-span-2 sm:row-span-2">
+      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 @2xl:grid-cols-3">
+        <div className="flex flex-col justify-center rounded-lg bg-white p-8 shadow-sm @2xl:col-span-2 @2xl:row-span-2">
           {featured.rating && (
             <div className="text-lg text-brand-red">{"★".repeat(featured.rating)}</div>
           )}

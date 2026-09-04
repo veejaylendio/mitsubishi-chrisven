@@ -5,11 +5,11 @@ export default function ReviewsSection({ reviews }: { reviews: Review[] }) {
   if (reviews.length === 0) return null;
 
   return (
-    <section id="reviews" className="bg-gray-50 px-6 py-16">
+    <section id="reviews" className="@container bg-gray-50 px-6 py-16">
       <h2 className="text-center text-2xl font-bold text-brand-black">
         What Customers Say
       </h2>
-      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 @2xl:grid-cols-3">
         {reviews.map((review) => (
           <div key={review.id} className="rounded-lg bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">

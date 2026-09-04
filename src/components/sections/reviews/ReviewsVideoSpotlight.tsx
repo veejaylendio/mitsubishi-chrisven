@@ -8,29 +8,29 @@ export default function ReviewsVideoSpotlight({ reviews }: { reviews: Review[] }
   const rest = reviews.filter((r) => r.id !== spotlight.id);
 
   return (
-    <section id="reviews" className="bg-gray-50 px-6 py-16">
+    <section id="reviews" className="@container bg-gray-50 px-6 py-16">
       <h2 className="text-center text-2xl font-bold text-brand-black">What Customers Say</h2>
       <div className="mx-auto mt-10 max-w-5xl">
-        <div className="overflow-hidden rounded-lg bg-white shadow-sm sm:flex">
-          <div className="bg-black sm:w-1/2">
+        <div className="overflow-hidden rounded-lg bg-white shadow-sm @2xl:flex">
+          <div className="bg-black @2xl:w-1/2">
             {spotlight.video_url ? (
               <video
                 src={spotlight.video_url}
                 poster={spotlight.reviewer_photo_url ?? undefined}
                 controls
-                className="h-64 w-full object-cover sm:h-full"
+                className="h-64 w-full object-cover @2xl:h-full"
               />
             ) : (
               spotlight.reviewer_photo_url && (
                 <LazyImage
                   src={spotlight.reviewer_photo_url}
                   alt={spotlight.author_name}
-                  wrapperClassName="h-64 w-full sm:h-full"
+                  wrapperClassName="h-64 w-full @2xl:h-full"
                 />
               )
             )}
           </div>
-          <div className="flex flex-col justify-center p-8 sm:w-1/2">
+          <div className="flex flex-col justify-center p-8 @2xl:w-1/2">
             {spotlight.rating && (
               <div className="text-lg text-brand-red">{"★".repeat(spotlight.rating)}</div>
             )}
@@ -42,7 +42,7 @@ export default function ReviewsVideoSpotlight({ reviews }: { reviews: Review[] }
         </div>
 
         {rest.length > 0 && (
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 @2xl:grid-cols-3">
             {rest.map((review) => (
               <div key={review.id} className="rounded-lg bg-white p-4 shadow-sm">
                 {review.rating && (
