@@ -27,37 +27,51 @@ function buildEmbed(input: NotifyDiscordInquiryInput) {
 }
 
 async function notifyViaBot(input: NotifyDiscordInquiryInput, botToken: string, channelId: string) {
-  await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bot ${botToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      embeds: [buildEmbed(input)],
-      components: [
-        {
-          type: 1,
-          components: [
-            {
-              type: 2,
-              style: 1,
-              label: "Reply",
-              custom_id: `reply:${input.sessionId}`,
-            },
-          ],
-        },
-      ],
-    }),
-  }).catch(() => {});
+  try {
+    const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${botToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        embeds: [buildEmbed(input)],
+        components: [
+          {
+            type: 1,
+            components: [
+              {
+                type: 2,
+                style: 1,
+                label: "Reply",
+                custom_id: `reply:${input.sessionId}`,
+              },
+            ],
+          },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("[discord] notifyViaBot failed", res.status, await res.text());
+    }
+  } catch (err) {
+    console.error("[discord] notifyViaBot threw", err);
+  }
 }
 
 async function notifyViaWebhook(input: NotifyDiscordInquiryInput, webhookUrl: string) {
-  await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ embeds: [buildEmbed(input)] }),
-  }).catch(() => {});
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embeds: [buildEmbed(input)] }),
+    });
+    if (!res.ok) {
+      console.error("[discord] notifyViaWebhook failed", res.status, await res.text());
+    }
+  } catch (err) {
+    console.error("[discord] notifyViaWebhook threw", err);
+  }
 }
 
 export async function notifyDiscordInquiry(input: NotifyDiscordInquiryInput) {
@@ -73,5 +87,8 @@ export async function notifyDiscordInquiry(input: NotifyDiscordInquiryInput) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (webhookUrl) {
     await notifyViaWebhook(input, webhookUrl);
+    return;
   }
+
+  console.error("[discord] notifyDiscordInquiry skipped: no DISCORD_BOT_TOKEN/DISCORD_CHANNEL_ID or DISCORD_WEBHOOK_URL set");
 }
