@@ -16,8 +16,7 @@ export default async function ApplyPage() {
       <section className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
         <h1 className="text-center text-2xl font-bold text-brand-black">Application Form</h1>
         <p className="mt-2 text-center text-sm text-gray-500">
-          Tell us a bit about yourself and how you&apos;d like to pay, and we&apos;ll follow up
-          shortly.
+          Complete your financing details and we&apos;ll follow up shortly.
         </p>
         <div className="mt-8">
           <ApplicationForm vehicles={vehicles} />

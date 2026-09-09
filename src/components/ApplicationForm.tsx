@@ -2,213 +2,73 @@
 
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { submitApplication } from "@/lib/applications/actions";
-import type { FinancingType, VehicleOption } from "@/lib/types";
+import type { VehicleOption } from "@/lib/types";
 
-function vehicleLabel(vehicle: VehicleOption) {
-  return [vehicle.year, vehicle.name, vehicle.trim].filter(Boolean).join(" ");
-}
+type Borrower = {
+  lastName: string; firstName: string; middleName: string; birthday: string; birthplace: string;
+  civilStatus: string; presentAddress: string; permanentAddress: string; residenceOwnership: string;
+  yearsInAddress: string; email: string; phone: string;
+};
+type IncomeDetails = {
+  employerBusiness: string; employerBusinessPhone: string; employerBusinessEmail: string;
+  employerBusinessAddress: string; position: string; yearsInEmployment: string; grossMonthlyIncome: string;
+};
+type PrincipalBorrower = Borrower & IncomeDetails & { dependents: string; tin: string; mothersMaidenName: string };
+type CoMaker = Borrower & IncomeDetails & { relationship: string; hasIncome: boolean; dependents: string; tin: string; mothersMaidenName: string };
+
+const emptyBorrower: Borrower = { lastName: "", firstName: "", middleName: "", birthday: "", birthplace: "", civilStatus: "", presentAddress: "", permanentAddress: "", residenceOwnership: "", yearsInAddress: "", email: "", phone: "" };
+const emptyIncome: IncomeDetails = { employerBusiness: "", employerBusinessPhone: "", employerBusinessEmail: "", employerBusinessAddress: "", position: "", yearsInEmployment: "", grossMonthlyIncome: "" };
+const emptyPrincipal: PrincipalBorrower = { ...emptyBorrower, ...emptyIncome, dependents: "", tin: "", mothersMaidenName: "" };
+const emptyCoMaker = (): CoMaker => ({ ...emptyBorrower, ...emptyIncome, relationship: "", hasIncome: true, dependents: "", tin: "", mothersMaidenName: "" });
+
+function vehicleLabel(vehicle: VehicleOption) { return [vehicle.year, vehicle.name, vehicle.trim].filter(Boolean).join(" "); }
 
 export default function ApplicationForm({ vehicles }: { vehicles: VehicleOption[] }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  const [financingType, setFinancingType] = useState<FinancingType>("cash");
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  const [principalBorrower, setPrincipalBorrower] = useState(emptyPrincipal);
+  const [coMakers, setCoMakers] = useState<CoMaker[]>([]);
   const [vehicleId, setVehicleId] = useState("");
-  const [employer, setEmployer] = useState("");
-  const [monthlyIncome, setMonthlyIncome] = useState("");
-  const [downPayment, setDownPayment] = useState("");
   const [message, setMessage] = useState("");
+  const isMarried = principalBorrower.civilStatus === "Married";
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setError(null);
     startTransition(async () => {
-      const result = await submitApplication({
-        fullName,
-        phone,
-        email,
-        address,
-        vehicleId: vehicleId || undefined,
-        financingType,
-        employer,
-        monthlyIncome: monthlyIncome || undefined,
-        downPayment: downPayment || undefined,
-        message,
-      });
-      if ("error" in result) {
-        setError(result.error);
-        return;
-      }
+      const result = await submitApplication({ principalBorrower, coMakers, vehicleId: vehicleId || undefined, message });
+      if ("error" in result) { setError(result.error); return; }
       setSubmitted(true);
     });
   }
 
-  if (submitted) {
-    return (
-      <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-        <h2 className="text-xl font-bold text-brand-black">Application received!</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Thanks, {fullName.split(" ")[0]}. We&apos;ll reach out to you at {phone} shortly to
-          follow up.
-        </p>
-      </div>
-    );
-  }
+  if (submitted) return <div className="rounded-xl bg-white p-8 text-center shadow-sm"><h2 className="text-xl font-bold text-brand-black">Application received!</h2><p className="mt-2 text-sm text-gray-600">Thank you. We&apos;ll contact you at {principalBorrower.phone} shortly to follow up.</p></div>;
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
-      <div>
-        <p className="mb-2 text-sm font-semibold text-brand-black">How would you like to pay?</p>
-        <div className="grid grid-cols-2 gap-3">
-          {(["cash", "loan"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setFinancingType(option)}
-              className={`rounded-md border px-4 py-3 text-sm font-semibold transition ${
-                financingType === option
-                  ? "border-brand-red bg-brand-red/10 text-brand-red"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
-              }`}
-            >
-              {option === "cash" ? "Cash Purchase" : "Auto Loan / Financing"}
-            </button>
-          ))}
-        </div>
-      </div>
+  const updatePrincipal = (field: keyof PrincipalBorrower, value: string) => setPrincipalBorrower((current) => ({ ...current, [field]: value }));
+  const updateCoMaker = (index: number, field: keyof CoMaker, value: string | boolean) => setCoMakers((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item));
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Full name" required>
-          <input
-            type="text"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Phone number" required>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="09xx xxx xxxx"
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Email address">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Address">
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className={inputClass}
-          />
-        </Field>
-      </div>
-
-      <Field label="Vehicle you're interested in">
-        <select
-          value={vehicleId}
-          onChange={(e) => setVehicleId(e.target.value)}
-          className={inputClass}
-        >
-          <option value="">Not sure yet</option>
-          {vehicles.map((vehicle) => (
-            <option key={vehicle.id} value={vehicle.id}>
-              {vehicleLabel(vehicle)}
-            </option>
-          ))}
-        </select>
-      </Field>
-
-      {financingType === "loan" && (
-        <div className="grid gap-4 rounded-md bg-gray-50 p-4 sm:grid-cols-2">
-          <Field label="Employer" required>
-            <input
-              type="text"
-              required
-              value={employer}
-              onChange={(e) => setEmployer(e.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Monthly gross income" required>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              value={monthlyIncome}
-              onChange={(e) => setMonthlyIncome(e.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Desired down payment">
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={downPayment}
-              onChange={(e) => setDownPayment(e.target.value)}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-      )}
-
-      <Field label="Anything else we should know?">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-          className={inputClass}
-        />
-      </Field>
-
-      {error && <p className="text-sm text-brand-red">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-brand-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:opacity-60"
-      >
-        {pending ? "Submitting..." : "Submit Application"}
-      </button>
-    </form>
-  );
+  return <form onSubmit={handleSubmit} className="space-y-8 rounded-xl bg-white p-6 shadow-sm sm:p-8">
+    <section><SectionHeading>Principal Borrower</SectionHeading><BorrowerFields value={principalBorrower} onChange={updatePrincipal} />
+      <div className="mt-4 grid gap-4 sm:grid-cols-3"><Field label="Dependents" required><input required value={principalBorrower.dependents} onChange={(e) => updatePrincipal("dependents", e.target.value)} className={inputClass} /></Field><Field label="TIN" required><input required value={principalBorrower.tin} onChange={(e) => updatePrincipal("tin", e.target.value)} className={inputClass} /></Field><Field label="Mother&apos;s maiden name" required><input required value={principalBorrower.mothersMaidenName} onChange={(e) => updatePrincipal("mothersMaidenName", e.target.value)} className={inputClass} /></Field></div><IncomeFields value={principalBorrower} onChange={updatePrincipal} />
+    </section>
+    <Field label="Vehicle you&apos;re interested in"><select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} className={inputClass}><option value="">Not sure yet</option>{vehicles.map((vehicle) => <option key={vehicle.id} value={vehicle.id}>{vehicleLabel(vehicle)}</option>)}</select></Field>
+    <section className="border-t border-gray-100 pt-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><SectionHeading>Co-Maker</SectionHeading>{isMarried && <p className="mt-1 text-xs text-brand-red">Required because the principal borrower is married.</p>}</div><button type="button" onClick={() => setCoMakers((current) => [...current, emptyCoMaker()])} className="rounded-md border border-brand-red px-3 py-2 text-sm font-semibold text-brand-red hover:bg-brand-red/5">+ Add Co-Maker</button></div>
+      {coMakers.map((coMaker, index) => <details key={index} open className="group mt-5 rounded-md border border-gray-200 bg-gray-50/50 p-4 shadow-sm"><summary className="-m-4 flex cursor-pointer list-none items-center justify-between rounded-md p-4 font-semibold text-brand-black"><span>Co-Maker {index + 1}</span><span className="flex items-center gap-3"><button type="button" aria-label={`Remove Co-Maker ${index + 1}`} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setCoMakers((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} className="text-xs font-semibold text-gray-500 transition-colors hover:text-brand-red">Remove</button><span aria-hidden="true" className="text-lg font-normal leading-none text-gray-400 transition-transform group-open:rotate-180">⌄</span></span></summary><div className="mt-8"><BorrowerFields value={coMaker} onChange={(field, value) => updateCoMaker(index, field, value)} /><Field label="Relationship to borrower" required><input required value={coMaker.relationship} onChange={(e) => updateCoMaker(index, "relationship", e.target.value)} className={inputClass} /></Field><label className="mt-4 flex items-center gap-2 text-sm font-semibold text-gray-600"><input type="checkbox" checked={coMaker.hasIncome} onChange={(e) => updateCoMaker(index, "hasIncome", e.target.checked)} /> Co-maker has income</label>{coMaker.hasIncome && <><div className="mt-4 grid gap-4 sm:grid-cols-3"><Field label="Dependents" required><input required value={coMaker.dependents} onChange={(e) => updateCoMaker(index, "dependents", e.target.value)} className={inputClass} /></Field><Field label="TIN" required><input required value={coMaker.tin} onChange={(e) => updateCoMaker(index, "tin", e.target.value)} className={inputClass} /></Field><Field label="Mother&apos;s maiden name" required><input required value={coMaker.mothersMaidenName} onChange={(e) => updateCoMaker(index, "mothersMaidenName", e.target.value)} className={inputClass} /></Field></div><IncomeFields value={coMaker} onChange={(field, value) => updateCoMaker(index, field, value)} /></>}</div></details>)}
+    </section>
+    <Field label="Additional notes"><textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className={inputClass} /></Field>{error && <p className="text-sm text-brand-red">{error}</p>}<button type="submit" disabled={pending} className="w-full rounded-md bg-brand-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:opacity-60">{pending ? "Submitting..." : "Submit Application"}</button>
+  </form>;
 }
 
-const inputClass =
-  "mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-brand-black";
-
-function Field({
-  label,
-  required,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <label className="block text-xs font-semibold text-gray-500">
-      {label}
-      {required && <span className="text-brand-red"> *</span>}
-      {children}
-    </label>
-  );
+function BorrowerFields({ value, onChange }: { value: Borrower; onChange: (field: keyof Borrower, value: string) => void }) {
+  const fields: [keyof Borrower, string, string?][] = [["lastName", "Last name"], ["firstName", "First name"], ["middleName", "Middle name"], ["birthday", "Birthday", "date"], ["birthplace", "Birthplace"], ["civilStatus", "Civil status"], ["presentAddress", "Present address"], ["permanentAddress", "Permanent address"], ["residenceOwnership", "Rented or owned"], ["yearsInAddress", "Years in address"], ["email", "Email address", "email"], ["phone", "Contact number", "tel"]];
+  return <div className="grid gap-4 sm:grid-cols-2">{fields.map(([field, label, type]) => <Field key={field} label={label} required={!['middleName', 'email'].includes(field)}>{field === "civilStatus" ? <select required value={value[field]} onChange={(e) => onChange(field, e.target.value)} className={inputClass}><option value="">Select status</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select> : field === "residenceOwnership" ? <select required value={value[field]} onChange={(e) => onChange(field, e.target.value)} className={inputClass}><option value="">Select one</option><option>Rented</option><option>Owned</option></select> : <input type={type ?? "text"} required={!['middleName', 'email'].includes(field)} value={value[field]} onChange={(e) => onChange(field, e.target.value)} className={inputClass} />}</Field>)}</div>;
 }
+
+function IncomeFields({ value, onChange }: { value: IncomeDetails; onChange: (field: keyof IncomeDetails, value: string) => void }) {
+  const fields: [keyof IncomeDetails, string, string?][] = [["employerBusiness", "Employer/Business"], ["employerBusinessPhone", "Employer/Business telephone number", "tel"], ["employerBusinessEmail", "Company/Business email", "email"], ["employerBusinessAddress", "Employer/Business address"], ["position", "Position"], ["yearsInEmployment", "Years in employment/business"]];
+  return <div className="mt-5 grid gap-4 rounded-md bg-gray-50 p-4 sm:grid-cols-2"><h3 className="text-sm font-bold text-brand-black sm:col-span-2">Employment or Business</h3>{fields.map(([field, label, type]) => <Field key={field} label={label} required><input type={type ?? "text"} required value={value[field]} onChange={(e) => onChange(field, e.target.value)} className={inputClass} /></Field>)}<Field label="Gross monthly salary/income" required><input type="number" min="0" step="0.01" required value={value.grossMonthlyIncome} onChange={(e) => onChange("grossMonthlyIncome", e.target.value)} className={inputClass} /></Field></div>;
+}
+
+function SectionHeading({ children }: { children: ReactNode }) { return <h2 className="text-lg font-bold text-brand-black">{children}</h2>; }
+const inputClass = "mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-brand-black";
+function Field({ label, required, children }: { label: string; required?: boolean; children: ReactNode }) { return <label className="block text-xs font-semibold text-gray-500">{label}{required && <span className="text-brand-red"> *</span>}{children}</label>; }

@@ -37,7 +37,11 @@ export async function submitApplication(
     employer: data.employer,
     monthly_income: data.monthlyIncome,
     down_payment: data.downPayment,
-    message: data.message,
+    message: JSON.stringify({
+      principalBorrower: data.principalBorrower,
+      coMakers: data.coMakers,
+      notes: data.message,
+    }),
   });
   if (error) return { error: "Something went wrong. Please try again." };
 
