@@ -94,13 +94,24 @@ export async function getVehicleOptions(): Promise<VehicleOption[]> {
 
 export async function getVehiclePriceOptions(): Promise<VehiclePriceOption[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("vehicles")
-    .select("id, name, trim, year, price")
-    .eq("is_available", true)
-    .eq("is_archived", false)
-    .order("sort_order");
-  return (data as VehiclePriceOption[]) ?? [];
+  const [{ data: vehicles }, { data: images }] = await Promise.all([
+    supabase
+      .from("vehicles")
+      .select("id, name, trim, year, price, discount")
+      .eq("is_available", true)
+      .eq("is_archived", false)
+      .order("sort_order"),
+    supabase
+      .from("vehicle_images")
+      .select("vehicle_id, image_url, is_primary, sort_order")
+      .order("sort_order"),
+  ]);
+
+  return (vehicles ?? []).map((vehicle) => {
+    const vehicleImages = (images ?? []).filter((img) => img.vehicle_id === vehicle.id);
+    const primary = vehicleImages.find((img) => img.is_primary) ?? vehicleImages[0];
+    return { ...vehicle, image_url: primary?.image_url ?? null };
+  }) as VehiclePriceOption[];
 }
 
 export async function getBankRates(): Promise<BankRate[]> {

@@ -128,6 +128,8 @@ export type VehiclePriceOption = {
   trim: string | null;
   year: number | null;
   price: number | null;
+  discount: number | null;
+  image_url: string | null;
 };
 
 export type FontWeightPreset = "regular" | "medium" | "semibold" | "bold";

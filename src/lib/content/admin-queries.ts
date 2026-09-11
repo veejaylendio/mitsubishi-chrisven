@@ -74,7 +74,7 @@ export async function getAllVehiclesAdmin(): Promise<AdminVehicle[]> {
     supabase
       .from("vehicles")
       .select(
-        "id, name, trim, price, description, badge, mileage, year, fuel_type, is_available, is_archived, is_comparable, sort_order",
+        "id, name, trim, price, discount, description, badge, mileage, year, fuel_type, is_available, is_archived, is_comparable, sort_order",
       )
       .order("sort_order"),
     supabase

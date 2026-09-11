@@ -30,6 +30,7 @@ export type AdminVehicle = {
   name: string;
   trim: string | null;
   price: number | null;
+  discount: number | null;
   description: string | null;
   badge: string | null;
   mileage: number | null;

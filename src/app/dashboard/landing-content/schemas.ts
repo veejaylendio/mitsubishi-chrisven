@@ -26,6 +26,7 @@ export const vehicleSchema = z.object({
   name: z.string().min(1).max(120),
   trim: z.string().max(60).nullable(),
   price: z.number().nonnegative().nullable(),
+  discount: z.number().nonnegative().nullable(),
   description: z.string().max(1000).nullable(),
   badge: z.string().max(40).nullable(),
   mileage: z.number().nonnegative().nullable(),

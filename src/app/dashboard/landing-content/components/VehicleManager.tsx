@@ -26,6 +26,7 @@ type VehicleFormValue = {
   name: string;
   trim: string | null;
   price: number | null;
+  discount: number | null;
   description: string | null;
   badge: string | null;
   mileage: number | null;
@@ -39,6 +40,7 @@ const EMPTY_VEHICLE: VehicleFormValue = {
   name: "",
   trim: null,
   price: null,
+  discount: null,
   description: null,
   badge: null,
   mileage: null,
@@ -206,6 +208,15 @@ function VehicleForm({
             type="number"
             value={value.price ?? ""}
             onChange={(e) => setValue({ ...value, price: numberField(e.target.value) })}
+            className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-medium text-gray-500">Discount (₱)</span>
+          <input
+            type="number"
+            value={value.discount ?? ""}
+            onChange={(e) => setValue({ ...value, discount: numberField(e.target.value) })}
             className="mt-1 w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
           />
         </label>

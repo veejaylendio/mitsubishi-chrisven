@@ -194,7 +194,7 @@ export async function duplicateVehicle(id: string) {
   const { data: original, error } = await supabase
     .from("vehicles")
     .select(
-      "name, trim, price, description, badge, mileage, year, fuel_type, is_available, is_comparable, is_archived",
+      "name, trim, price, discount, description, badge, mileage, year, fuel_type, is_available, is_comparable, is_archived",
     )
     .eq("id", id)
     .single();
