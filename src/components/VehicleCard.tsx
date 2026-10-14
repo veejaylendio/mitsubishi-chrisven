@@ -123,7 +123,7 @@ export default function VehicleCard({
           </p>
         )}
 
-        {colors.length > 1 && (
+        {colors.length > 0 && (
           <div className="mt-4 flex items-center gap-2">
             <span className="text-xs font-medium text-gray-500">Color:</span>
             <div className="flex items-center gap-2">
